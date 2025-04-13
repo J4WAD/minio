@@ -15,6 +15,4 @@ services:
         sync: false
     ports:
       - port: 9000
-        name: api
-      - port: 9001
-        name: console 
+        name: minio 

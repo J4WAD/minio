@@ -26,7 +26,7 @@ Once deployed, you'll need to configure PocketBase to use this S3 storage:
 
 ## Accessing MinIO Console
 
-The MinIO console is available at: `https://your-minio-app-name.onrender.com:9001`
+The MinIO console is available at: `https://your-minio-app-name.onrender.com/minio/`
 
 Use your configured root credentials to log in and manage buckets.
 
