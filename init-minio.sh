@@ -1,6 +1,9 @@
 #!/bin/bash
 
-# This script creates the necessary bucket in MinIO for PocketBase
+# This script creates buckets in MinIO
+
+# Usage: ./init-minio.sh bucket1 bucket2 bucket3
+# If no buckets are provided, it will create a default bucket called "data"
 
 # Wait for MinIO to be ready
 echo "Waiting for MinIO to be ready..."
@@ -17,13 +20,23 @@ chmod +x /usr/local/bin/mc
 # Configure MinIO Client
 mc alias set myminio http://minio:9000 ${MINIO_ROOT_USER} ${MINIO_ROOT_PASSWORD}
 
-# Create bucket if it doesn't exist
-if ! mc ls myminio | grep -q pocketbase; then
-  echo "Creating pocketbase bucket..."
-  mc mb myminio/pocketbase
-  echo "Setting bucket policy..."
-  mc policy set download myminio/pocketbase
-  echo "Bucket created and configured successfully."
+# Create buckets
+if [ $# -eq 0 ]; then
+  # No bucket names provided, create default bucket
+  BUCKETS=("data")
 else
-  echo "Bucket pocketbase already exists."
-fi 
+  # Use provided bucket names
+  BUCKETS=("$@")
+fi
+
+for bucket in "${BUCKETS[@]}"; do
+  if ! mc ls myminio | grep -q ${bucket}; then
+    echo "Creating ${bucket} bucket..."
+    mc mb myminio/${bucket}
+    echo "Setting bucket policy to download (read-only)..."
+    mc policy set download myminio/${bucket}
+    echo "Bucket ${bucket} created and configured successfully."
+  else
+    echo "Bucket ${bucket} already exists."
+  fi
+done 

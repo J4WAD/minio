@@ -1,26 +1,4 @@
 services:
-  - type: web
-    name: pocketbase
-    env: docker
-    dockerfilePath: ./Dockerfile
-    envVars:
-      - key: S3_ENDPOINT
-        fromService:
-          name: minio
-          type: pserv
-          property: hostport
-      - key: S3_BUCKET
-        value: pocketbase
-      - key: S3_REGION
-        value: us-east-1
-      - key: S3_ACCESS_KEY
-        sync: false
-      - key: S3_SECRET_KEY
-        sync: false
-    healthCheckPath: /api/health
-    autoDeploy: true
-    plan: starter
-
   - type: pserv
     name: minio
     env: docker

@@ -1,6 +1,6 @@
-# PocketBase with MinIO S3 Storage
+# MinIO S3-Compatible Object Storage
 
-This project sets up a PocketBase instance that uses MinIO as an S3-compatible object storage solution, deployable on Render.
+This project sets up MinIO as an S3-compatible object storage solution, deployable on Render.
 
 ## Local Development
 
@@ -20,8 +20,8 @@ cd <repository-name>
 docker-compose up -d
 ```
 
-3. Access services:
-   - PocketBase Admin: http://localhost:8090/_/
+3. Access MinIO:
+   - MinIO API: http://localhost:9000/
    - MinIO Console: http://localhost:9001/
 
 ## Deployment on Render
@@ -34,28 +34,44 @@ docker-compose up -d
 
 1. Push this code to your Git repository
 2. In Render dashboard, select "Blueprint" and connect your repository
-3. Render will automatically detect the `render.yaml` file and set up the services
+3. Render will automatically detect the `render.yaml` file and set up the MinIO service
 4. Set up environment variables for MinIO in the Render dashboard:
    - `MINIO_ROOT_USER`: Your MinIO username
    - `MINIO_ROOT_PASSWORD`: Your MinIO password
-   - `S3_ACCESS_KEY`: Same as MINIO_ROOT_USER
-   - `S3_SECRET_KEY`: Same as MINIO_ROOT_PASSWORD
 
-## Configuration
+## Using MinIO with External Applications
 
-### Environment Variables
+### S3 SDK Configuration
 
-- `S3_ENDPOINT`: The MinIO server endpoint (auto-configured on Render)
-- `S3_BUCKET`: The bucket name for file storage (default: `pocketbase`)
-- `S3_REGION`: The S3 region (default: `us-east-1`)
-- `S3_ACCESS_KEY`: The MinIO access key
-- `S3_SECRET_KEY`: The MinIO secret key
+You can use MinIO with any application that supports S3 storage. Use these parameters:
+
+```
+Endpoint: https://your-minio-service.onrender.com
+Access Key: Your MINIO_ROOT_USER
+Secret Key: Your MINIO_ROOT_PASSWORD
+Region: us-east-1 (or any region, MinIO ignores this)
+Force Path Style: true
+```
+
+### Creating Buckets
+
+You can create buckets either through:
+- The MinIO Console
+- Using the MinIO Client (mc)
+- Using the AWS CLI
+- Using any S3-compatible SDK
+
+### Bucket Policies
+
+To make a bucket publicly readable, use the MinIO Console to set the bucket policy to "download" or use the MinIO Client:
+
+```
+mc policy set download myminio/yourbucket
+```
 
 ## Structure
 
 - `docker-compose.yml`: Local development setup
 - `render.yaml`: Render deployment configuration
-- `Dockerfile`: PocketBase Dockerfile with Alpine 3.19 and Postfix
-- `Dockerfile.minio`: MinIO container configuration
-- `pb_hooks/main.pb.js`: PocketBase hook to configure S3 storage
-- `init-minio.sh`: Script to initialize the MinIO bucket 
+- `Dockerfile.minio`: Container configuration
+- `init-minio.sh`: Script to initialize MinIO buckets 
