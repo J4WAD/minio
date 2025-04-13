@@ -12,7 +12,4 @@ services:
       - key: MINIO_ROOT_USER
         sync: false
       - key: MINIO_ROOT_PASSWORD
-        sync: false
-    ports:
-      - port: 9000
-        name: minio 
+        sync: false 
