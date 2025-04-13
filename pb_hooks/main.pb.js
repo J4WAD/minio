@@ -1,19 +1,30 @@
+// S3 configuration for MinIO
 onAfterBootstrap((e) => {
-    // Configure MinIO as the file storage
-    const fs = require('@pocketbase/fs-store').default;
+    const endpoint = $os.getenv("S3_ENDPOINT") || "http://minio:9000";
+    const bucket = $os.getenv("S3_BUCKET") || "pocketbase";
+    const region = $os.getenv("S3_REGION") || "us-east-1";
+    const accessKey = $os.getenv("S3_ACCESS_KEY") || "minioadmin";
+    const secretKey = $os.getenv("S3_SECRET_KEY") || "minioadmin";
 
-    const minioConfig = {
-        endpoint: process.env.MINIO_ENDPOINT || 'play.min.io',
-        port: parseInt(process.env.MINIO_PORT) || 9000,
-        useSSL: process.env.MINIO_USE_SSL === 'true',
-        accessKey: process.env.MINIO_ROOT_USER,
-        secretKey: process.env.MINIO_ROOT_PASSWORD,
-        bucket: process.env.MINIO_BUCKET || 'pocketbase-uploads',
-    };
-
-    // Initialize MinIO client
-    const minioFs = new fs.MinioStore(minioConfig);
-    
-    // Set as default file storage
-    $app.store().setFileSystem(minioFs);
+    try {
+        // Configure the app.storage to use S3
+        $app.settings().filesystems = [
+            {
+                "name": "storage",
+                "type": "s3",
+                "endpoint": endpoint,
+                "bucket": bucket,
+                "region": region,
+                "forcePathStyle": true,
+                "credentials": {
+                    "access_key_id": accessKey,
+                    "secret_access_key": secretKey
+                }
+            }
+        ];
+        
+        console.log("Successfully configured S3 storage with MinIO");
+    } catch (err) {
+        console.error("Failed to configure S3 storage:", err);
+    }
 }); 

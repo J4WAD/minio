@@ -1,22 +1,14 @@
-FROM alpine:latest
+FROM ghcr.io/muchobien/pocketbase:latest
 
-# Install required packages
-RUN apk add --no-cache \
-    ca-certificates \
-    unzip \
-    wget
+WORKDIR /pb
 
-# Download and install PocketBase
-RUN wget https://github.com/pocketbase/pocketbase/releases/download/v0.19.4/pocketbase_0.19.4_linux_amd64.zip \
-    && unzip pocketbase_0.19.4_linux_amd64.zip \
-    && rm pocketbase_0.19.4_linux_amd64.zip \
-    && chmod +x /pocketbase
+# Create directories for hooks
+RUN mkdir -p /pb/pb_hooks
 
-# Create directory for PocketBase data
-RUN mkdir /pb_data
+# Copy our hooks
+COPY ./pb_hooks /pb/pb_hooks
 
-# Expose the default PocketBase port
-EXPOSE 8090
+EXPOSE 8080
 
-# Start PocketBase
-CMD ["/pocketbase", "serve", "--http=0.0.0.0:8090"] 
+# Command to run PocketBase
+CMD ["/pb/pocketbase", "serve", "--http=0.0.0.0:8080"] 

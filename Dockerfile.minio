@@ -1,0 +1,6 @@
+FROM minio/minio:latest
+
+EXPOSE 9000 9001
+
+# Command to run MinIO server
+CMD ["server", "--console-address", ":9001", "/data"] 

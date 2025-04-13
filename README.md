@@ -1,60 +1,60 @@
-# PocketBase with MinIO Storage on Render
+# PocketBase with MinIO S3 Storage
 
-This repository contains configuration for running PocketBase with MinIO object storage on Render.
+This project sets up a PocketBase instance that uses MinIO as an S3-compatible object storage solution, deployable on Render.
 
-## Setup Instructions
+## Local Development
 
-1. Create a new MinIO instance (you can use Render's managed MinIO service or any other provider)
+### Prerequisites
+- Docker and Docker Compose
 
-2. Set up the following environment variables in your Render dashboard:
-   - `MINIO_ROOT_USER`: Your MinIO access key
-   - `MINIO_ROOT_PASSWORD`: Your MinIO secret key
-   - `MINIO_ENDPOINT`: Your MinIO server endpoint
-   - `MINIO_PORT`: MinIO server port (default: 9000)
-   - `MINIO_USE_SSL`: Whether to use SSL (default: true)
-   - `MINIO_BUCKET`: Bucket name for file storage (default: pocketbase-uploads)
+### Setup
 
-3. Deploy to Render:
-   - Fork this repository
-   - Create a new Web Service in Render
-   - Connect your forked repository
-   - Render will automatically detect the configuration and deploy the service
+1. Clone this repository:
+```
+git clone <repository-url>
+cd <repository-name>
+```
+
+2. Start the services:
+```
+docker-compose up -d
+```
+
+3. Access services:
+   - PocketBase Admin: http://localhost:8080/_/
+   - MinIO Console: http://localhost:9001/
+
+## Deployment on Render
+
+### Prerequisites
+- A Render account
+- Git repository connected to Render
+
+### Deployment Steps
+
+1. Push this code to your Git repository
+2. In Render dashboard, select "Blueprint" and connect your repository
+3. Render will automatically detect the `render.yaml` file and set up the services
+4. Set up environment variables for MinIO in the Render dashboard:
+   - `MINIO_ROOT_USER`: Your MinIO username
+   - `MINIO_ROOT_PASSWORD`: Your MinIO password
+   - `S3_ACCESS_KEY`: Same as MINIO_ROOT_USER
+   - `S3_SECRET_KEY`: Same as MINIO_ROOT_PASSWORD
 
 ## Configuration
 
-The service uses the following components:
-- PocketBase v0.19.4
-- MinIO for S3-compatible object storage
-- Docker for containerization
+### Environment Variables
 
-## Environment Variables
+- `S3_ENDPOINT`: The MinIO server endpoint (auto-configured on Render)
+- `S3_BUCKET`: The bucket name for file storage (default: `pocketbase`)
+- `S3_REGION`: The S3 region (default: `us-east-1`)
+- `S3_ACCESS_KEY`: The MinIO access key
+- `S3_SECRET_KEY`: The MinIO secret key
 
-Make sure to set these environment variables in your Render dashboard:
-- `MINIO_ROOT_USER`
-- `MINIO_ROOT_PASSWORD`
-- `MINIO_ENDPOINT`
+## Structure
 
-Optional variables (with defaults):
-- `MINIO_PORT` (default: 9000)
-- `MINIO_USE_SSL` (default: true)
-- `MINIO_BUCKET` (default: pocketbase-uploads)
-
-## Development
-
-To run locally:
-
-1. Install Docker
-2. Build the image:
-   ```bash
-   docker build -t pocketbase-minio .
-   ```
-3. Run the container:
-   ```bash
-   docker run -p 8090:8090 \
-     -e MINIO_ROOT_USER=your_access_key \
-     -e MINIO_ROOT_PASSWORD=your_secret_key \
-     -e MINIO_ENDPOINT=your_endpoint \
-     pocketbase-minio
-   ```
-
-The PocketBase Admin UI will be available at `http://localhost:8090/_/` 
+- `docker-compose.yml`: Local development setup
+- `render.yaml`: Render deployment configuration
+- `Dockerfile` & `Dockerfile.minio`: Container configurations
+- `pb_hooks/main.pb.js`: PocketBase hook to configure S3 storage
+- `init-minio.sh`: Script to initialize the MinIO bucket 
