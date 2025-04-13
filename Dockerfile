@@ -1,11 +1,22 @@
-FROM minio/minio:latest
+FROM alpine:latest
 
-RUN chmod -R 777 /usr/bin
+# Install required packages
+RUN apk add --no-cache \
+    ca-certificates \
+    unzip \
+    wget
 
-COPY dockerscripts/docker-entrypoint.sh /usr/bin/docker-entrypoint.sh
+# Download and install PocketBase
+RUN wget https://github.com/pocketbase/pocketbase/releases/download/v0.19.4/pocketbase_0.19.4_linux_amd64.zip \
+    && unzip pocketbase_0.19.4_linux_amd64.zip \
+    && rm pocketbase_0.19.4_linux_amd64.zip \
+    && chmod +x /pocketbase
 
-ENTRYPOINT ["/usr/bin/docker-entrypoint.sh"]
+# Create directory for PocketBase data
+RUN mkdir /pb_data
 
-VOLUME ["/data"]
+# Expose the default PocketBase port
+EXPOSE 8090
 
-CMD ["minio"]
+# Start PocketBase
+CMD ["/pocketbase", "serve", "--http=0.0.0.0:8090"] 
