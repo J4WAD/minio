@@ -21,7 +21,7 @@ docker-compose up -d
 ```
 
 3. Access services:
-   - PocketBase Admin: http://localhost:8080/_/
+   - PocketBase Admin: http://localhost:8090/_/
    - MinIO Console: http://localhost:9001/
 
 ## Deployment on Render
@@ -55,6 +55,7 @@ docker-compose up -d
 
 - `docker-compose.yml`: Local development setup
 - `render.yaml`: Render deployment configuration
-- `Dockerfile` & `Dockerfile.minio`: Container configurations
+- `Dockerfile`: PocketBase Dockerfile with Alpine 3.19 and Postfix
+- `Dockerfile.minio`: MinIO container configuration
 - `pb_hooks/main.pb.js`: PocketBase hook to configure S3 storage
 - `init-minio.sh`: Script to initialize the MinIO bucket 

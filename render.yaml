@@ -19,6 +19,8 @@ services:
         sync: false
     healthCheckPath: /api/health
     autoDeploy: true
+    plan: starter
+    port: 8090
 
   - type: pserv
     name: minio

@@ -1,14 +1,27 @@
-FROM ghcr.io/muchobien/pocketbase:latest
+FROM alpine:3.19 AS downloader
+ARG VERSION=0.26.6
+RUN apk add --no-cache unzip ca-certificates wget
+RUN wget https://github.com/pocketbase/pocketbase/releases/download/v${VERSION}/pocketbase_${VERSION}_linux_amd64.zip \
+    && unzip pocketbase_${VERSION}_linux_amd64.zip \
+    && chmod +x /pocketbase
 
-WORKDIR /pb
+# Use Alpine instead of scratch
+FROM alpine:3.19
+# Install necessary packages
+RUN apk add --no-cache ca-certificates mailx postfix
+# Configure postfix for simple operation
+RUN echo "inet_interfaces = loopback-only" >> /etc/postfix/main.cf \
+    && echo "mydestination = localhost.localdomain, localhost" >> /etc/postfix/main.cf \
+    && newaliases \
+    && mkdir -p /var/spool/postfix/pid \
+    && chown -R postfix:postfix /var/spool/postfix
 
-# Create directories for hooks
-RUN mkdir -p /pb/pb_hooks
+# Create hooks directory
+RUN mkdir -p /pb_hooks
+# Copy hooks
+COPY ./pb_hooks /pb_hooks
 
-# Copy our hooks
-COPY ./pb_hooks /pb/pb_hooks
-
-EXPOSE 8080
-
-# Command to run PocketBase
-CMD ["/pb/pocketbase", "serve", "--http=0.0.0.0:8080"] 
+EXPOSE 8090
+COPY --from=downloader /pocketbase /usr/local/bin/pocketbase
+# Start postfix before pocketbase
+CMD ["/bin/sh", "-c", "postfix start && /usr/local/bin/pocketbase serve --http=0.0.0.0:8090 --dir=/pb_data"] 
