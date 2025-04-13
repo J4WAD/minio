@@ -1,77 +1,41 @@
-# MinIO S3-Compatible Object Storage
+# MinIO S3 Storage for PocketBase
 
-This project sets up MinIO as an S3-compatible object storage solution, deployable on Render.
-
-## Local Development
-
-### Prerequisites
-- Docker and Docker Compose
-
-### Setup
-
-1. Clone this repository:
-```
-git clone <repository-url>
-cd <repository-name>
-```
-
-2. Start the services:
-```
-docker-compose up -d
-```
-
-3. Access MinIO:
-   - MinIO API: http://localhost:9000/
-   - MinIO Console: http://localhost:9001/
+This repository contains configuration for deploying MinIO, an S3-compatible object storage server, on Render to use with PocketBase.
 
 ## Deployment on Render
 
-### Prerequisites
-- A Render account
-- Git repository connected to Render
+1. Fork this repository
+2. Create a new Render Web Service using this repository
+3. Use the "Blueprint" option to deploy using the `render.yaml` file
+4. Set secure environment variables for `MINIO_ROOT_USER` and `MINIO_ROOT_PASSWORD`
+5. Deploy the service
 
-### Deployment Steps
+## Connecting to PocketBase
 
-1. Push this code to your Git repository
-2. In Render dashboard, select "Blueprint" and connect your repository
-3. Render will automatically detect the `render.yaml` file and set up the MinIO service
-4. Set up environment variables for MinIO in the Render dashboard:
-   - `MINIO_ROOT_USER`: Your MinIO username
-   - `MINIO_ROOT_PASSWORD`: Your MinIO password
+Once deployed, you'll need to configure PocketBase to use this S3 storage:
 
-## Using MinIO with External Applications
+1. In PocketBase admin UI, go to Settings > Files storage
+2. Select "S3" as the storage provider
+3. Configure the following settings:
+   - Endpoint: `https://your-minio-app-name.onrender.com`
+   - Bucket: `pb-files` (create this bucket in MinIO console first)
+   - Region: leave empty
+   - Access Key: Your MinIO root user name
+   - Secret Key: Your MinIO root password
+   - Force path style: Enabled
 
-### S3 SDK Configuration
+## Accessing MinIO Console
 
-You can use MinIO with any application that supports S3 storage. Use these parameters:
+The MinIO console is available at: `https://your-minio-app-name.onrender.com:9001`
 
-```
-Endpoint: https://your-minio-service.onrender.com
-Access Key: Your MINIO_ROOT_USER
-Secret Key: Your MINIO_ROOT_PASSWORD
-Region: us-east-1 (or any region, MinIO ignores this)
-Force Path Style: true
-```
+Use your configured root credentials to log in and manage buckets.
 
-### Creating Buckets
+## Creating Buckets
 
-You can create buckets either through:
-- The MinIO Console
-- Using the MinIO Client (mc)
-- Using the AWS CLI
-- Using any S3-compatible SDK
+After deployment, you'll need to log into the MinIO console and create a bucket named `pb-files` for PocketBase to use.
 
-### Bucket Policies
+## Security Recommendations
 
-To make a bucket publicly readable, use the MinIO Console to set the bucket policy to "download" or use the MinIO Client:
-
-```
-mc policy set download myminio/yourbucket
-```
-
-## Structure
-
-- `docker-compose.yml`: Local development setup
-- `render.yaml`: Render deployment configuration
-- `Dockerfile.minio`: Container configuration
-- `init-minio.sh`: Script to initialize MinIO buckets 
+- Change the default credentials
+- Set up proper bucket policies
+- Consider setting up IAM users instead of using root credentials 
